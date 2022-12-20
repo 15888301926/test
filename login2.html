@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>登录示例</title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <style type="text/css">
+        * {
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            -webkit-text-size-adjust: none;
+            -webkit-touch-callout: none;
+            margin: 0px;
+            padding: 0px;
+            outline: none;
+        }
+
+        input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px white inset;
+            color: #333;
+        }
+
+        body {
+            font-family: Microsoft YaHei;
+            font-size: 12px;
+            background: #fff;
+        }
+
+        .row {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkcodebutton {
+            position: absolute;
+            right: 15px;
+            height: 30px;
+            top: 10px;
+            color: #637dff;
+            border: 1px solid rgba(99, 125, 255, 0.24);
+            border-radius: 6px;
+            padding: 4px 12px;
+        }
+
+        .content {
+            width: 400px;
+            margin: auto;
+            overflow: hidden;
+        }
+
+
+
+        .login-text {
+            width: 100%;
+            font-size: 18px;
+            height: 50px;
+            line-height: 50px;
+            padding: 5px 40px;
+            background: #fff;
+            border: 0;
+            border-bottom: 1px solid #d9e1e3;
+            float: left;
+        }
+
+        .login-text:focus {
+            background: #fff;
+            border-bottom-color: #5caed4;
+        }
+
+        .login-text:first-of-type {
+            border-top: 0;
+        }
+		
+        .user-icon,.vector-icon {
+            background: url(https://img-blog.csdnimg.cn/2a8025cf36c1410487882ac8935e65b5.png) no-repeat -0px 0;
+            width: 25px;
+            height: 32px;
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+		
+		.user-icon {
+			background-position: -27px 0;
+		}
+
+        .login-go {
+            width: 100%;
+            height: 40px;
+            display: block;
+            font-size: 18px;
+            line-height: 40px;
+            color: #fff !important;
+            text-align: center;
+            border: 0;
+            background: #3ab9fc;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .header h1 {
+            width: 400px;
+            margin: auto;
+            font-family: Microsoft YaHei;
+            font-weight: normal;
+            font-size: 24px;
+            line-height: 50px;
+            color: #37baff;
+        }
+
+        .header {
+            text-align: center;
+            width: 85%;
+            margin: 100px auto 0 auto;
+            font-size: 24px;
+            padding: 20px 0;
+            overflow: hidden;
+        }
+
+        .header .logo {
+            background: url(https://img-blog.csdnimg.cn/19614ba9d44e43248266bc8833a437c7.jpg) no-repeat 0px 0px;
+            width: 96px;
+            height: 96px;
+            margin: auto;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            display: block;
+        }
+		
+		.tips {
+			color: #f00;
+			font-size: 14px;
+			text-align: center;
+		}
+		
+		.clear {
+			clear: both;
+		}
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo"></div>
+        <h1>西凉</h1>
+    </div>
+    <form name="form" action="/test/demo/loginCheck" method="post" onsubmit="onclick()">
+        <div class="content">
+            <div class="row">
+                <span class="vector-icon"></span>
+                <input id="eid" name="eid" type="text" value="" placeholder="id" class="login-text" required />
+            </div>
+            <div class="row">
+                <span class="user-icon"></span>
+                <input id="user" name="phone" type="text" value="" placeholder="手机号" class="login-text" required />
+            </div>
+
+            <div class="row">
+                <span class="user-icon"></span>
+                <input id="user" name="code" type="text" value="" placeholder="验证码" class="login-text" required />
+                <input type="button" name="" id="verCodeBtn" class="checkcodebutton" placeholder="手机验证码" value="获取验证码" onclick="settime(this);" />
+            </div>
+            <button onclick="login()" class="login-go">登录</button>
+        </div>
+		<div id ="tips1" class="tips clear"></div>
+    </form>
+</body>
+<script>
+    //验证码
+    var counts = 60;
+
+    function settime(val) {
+        if (counts == 0) {
+            val.removeAttribute("disabled");
+            val.value = "获取验证码";
+            counts = 60;
+            return false;
+        } else {
+            val.setAttribute("disabled", true);
+            val.value = "重新发送（" + counts + "）";
+            counts--;
+        }
+        setTimeout(function () {
+            settime(val);
+        }, 1000);
+    }
+
+    $(function () {
+        //获取验证码
+        $("#verCodeBtn").click(function () {
+            var userinfo = {
+                "eid": $("input[name='eid']").val(),
+                "phone": $("input[name='phone']").val()
+            }
+            $.ajax({
+                url: "/test/demo/sendPhoneCode",
+                data: userinfo,
+                type: "get",
+                success: function (data) {
+                    if(data.success == "false") {
+						$("#tips1").text("发送失败，信息填下有误");
+					}
+                },
+                error: function () {
+                    $("#tips1").text("发送失败");
+                }
+            });
+        });
+    })
+</script>
+
+</html>
+
